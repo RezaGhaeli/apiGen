@@ -1,0 +1,12 @@
+        /* Custom font for a clean look */
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        /* Style for the generated code textarea */
+        textarea {
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 300px; /* Minimum height for the textarea */
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; /* Monospace font for code */
+            font-size: 0.9rem;
+        }
