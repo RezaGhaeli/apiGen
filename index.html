@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,19 +8,22 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="api.css">
-    
+
 </head>
+
 <body class="p-4 sm:p-6 md:p-8 lg:p-10 flex justify-center items-start min-h-screen">
     <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-4xl border border-gray-200">
         <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-8">
             <span class="text-indigo-600">Custom</span> API Generator
         </h1>
 
-        <!-- Model Name Input -->
+        <!-- Collection Name Input (formerly Model Name) -->
         <div class="mb-6">
-            <label for="modelName" class="block text-gray-700 text-lg font-semibold mb-2">Model Name (e.g., Product, User):</label>
-            <input type="text" id="modelName" placeholder="Enter Model Name (e.g., Book)"
-                   class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 ease-in-out">
+            <label for="modelName" class="block text-gray-700 text-lg font-semibold mb-2">Collection Name (e.g.,
+                Product, User):</label>
+            <input type="text" id="modelName"
+                placeholder="Enter Collection name (e.g. Book). Recommend writing in the singular word form."
+                class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 ease-in-out">
         </div>
 
         <!-- MongoDB Connection Details -->
@@ -27,24 +31,28 @@
             <h2 class="text-xl font-semibold text-gray-800 mb-4">MongoDB Connection Details</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="mongoUserId" class="block text-gray-700 text-sm font-medium mb-1">MongoDB User ID:</label>
+                    <label for="mongoUserId" class="block text-gray-700 text-sm font-medium mb-1">MongoDB User
+                        ID:</label>
                     <input type="text" id="mongoUserId" placeholder="e.g., myuser"
-                           class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
+                        class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
                 </div>
                 <div>
-                    <label for="mongoPassword" class="block text-gray-700 text-sm font-medium mb-1">MongoDB Password:</label>
+                    <label for="mongoPassword" class="block text-gray-700 text-sm font-medium mb-1">MongoDB
+                        Password:</label>
                     <input type="password" id="mongoPassword" placeholder="e.g., mypassword"
-                           class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
+                        class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
                 </div>
                 <div class="md:col-span-2">
-                    <label for="mongoUri" class="block text-gray-700 text-sm font-medium mb-1">MongoDB URI (e.g., cluster0.f9d6o.gcp.mongodb.net):</label>
+                    <label for="mongoUri" class="block text-gray-700 text-sm font-medium mb-1">MongoDB URI (e.g.,
+                        cluster0.f9d6o.gcp.mongodb.net):</label>
                     <input type="text" id="mongoUri" placeholder="e.g., cluster0.f9d6o.gcp.mongodb.net"
-                           class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
+                        class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
                 </div>
                 <div class="md:col-span-2">
-                    <label for="mongoDatabaseName" class="block text-gray-700 text-sm font-medium mb-1">MongoDB Database Name:</label>
+                    <label for="mongoDatabaseName" class="block text-gray-700 text-sm font-medium mb-1">MongoDB Database
+                        Name:</label>
                     <input type="text" id="mongoDatabaseName" placeholder="e.g., mydatabase"
-                           class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
+                        class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
                 </div>
             </div>
         </div>
@@ -56,7 +64,7 @@
                 <!-- Initial attribute row will be added by JS -->
             </div>
             <button id="addAttributeBtn"
-                    class="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                class="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 + Add Attribute
             </button>
         </div>
@@ -64,11 +72,11 @@
         <!-- Generate & Copy Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 mb-6">
             <button id="generateCodeBtn"
-                    class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                 Generate API Code
             </button>
             <button id="copyCodeBtn"
-                    class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2">
+                class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2">
                 Copy Code
             </button>
         </div>
@@ -78,13 +86,20 @@
 
         <!-- Generated Code Output -->
         <div>
-            <label for="generatedCode" class="block text-gray-700 text-lg font-semibold mb-2">Generated API Code:</label>
+            <label for="generatedCode" class="block text-gray-700 text-lg font-semibold mb-2">Generated API
+                Code:</label>
             <textarea id="generatedCode" readonly
-                      class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
         </div>
+
+        <!-- Footer - Moved inside the main content div -->
+        <footer class="mt-6 text-center text-gray-600 text-sm">
+            Copyright &copy; Reza Ghaeli 2025
+        </footer>
     </div>
 
     <script src="apigen.js"></script>
 
 </body>
+
 </html>
