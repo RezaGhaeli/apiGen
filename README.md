@@ -24,4 +24,5 @@ This project contains three files:
 ---
 
 ## Support & Donations
-If you like this app and enjoy using it, you can donate any amount to my PayPal. Your support encourages me to create more practical apps like this!
+If you like this app and enjoy using it, you can donate any amount to my PayPal at mrghaeli@yahoo.com. 
+Your support encourages me to create more practical apps like this!
