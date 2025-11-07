@@ -74,13 +74,24 @@
             const mongoUri = mongoUriInput.value.trim();
             const mongoDatabaseName = mongoDatabaseNameInput.value.trim();
 
-            if (!mongoUserId || !mongoPassword || !mongoUri || !mongoDatabaseName) {
-                showMessage("Please fill in all MongoDB connection details.", 'error');
-                return;
-            }
-
             // Construct the connection string
-            const connectionString = `mongodb+srv://${mongoUserId}:${mongoPassword}@${mongoUri}/${mongoDatabaseName}`;
+            let connectionString;
+            
+            // If User ID and Password are empty, use local MongoDB
+            if (!mongoUserId && !mongoPassword) {
+                if (!mongoDatabaseName) {
+                    showMessage("Please enter a Database Name.", 'error');
+                    return;
+                }
+                connectionString = `mongodb://localhost:27017/${mongoDatabaseName}`;
+            } else {
+                // Use MongoDB Atlas or remote connection
+                if (!mongoUserId || !mongoPassword || !mongoUri || !mongoDatabaseName) {
+                    showMessage("Please fill in all MongoDB connection details for remote connection.", 'error');
+                    return;
+                }
+                connectionString = `mongodb+srv://${mongoUserId}:${mongoPassword}@${mongoUri}/${mongoDatabaseName}`;
+            }
 
 
             // Capitalize the first letter of the model name for the Mongoose model
