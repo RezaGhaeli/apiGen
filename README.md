@@ -24,5 +24,8 @@ This project contains three files:
 ---
 
 ## Support & Donations
-If you like this app and enjoy using it, you can donate any amount to my PayPal at ***paypal.me/rezaghaeli***. 
+If you like this app and enjoy using it, you can donate any amount via:
+- **PayPal**: [paypal.me/rezaghaeli](https://paypal.me/rezaghaeli)
+- **Buy Me a Coffee**: [buymeacoffee.com/rezaghaeli](https://buymeacoffee.com/rezaghaeli)
+
 Your support encourages me to create more practical apps like this!
