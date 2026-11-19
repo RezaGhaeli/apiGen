@@ -85,6 +85,20 @@ const ApiGen = (() => {
   const SAMPLE = { String: '"example"', Number: '1', Boolean: 'true', Date: '"2026-01-31"' };
 
   /* ---------------------------------------------------------------- testing: the requests shown on the page */
+  /* three different records to POST, so the collection has some data to read, update and delete */
+  function sampleRecords(attrs, Model) {
+    const label = n => n.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/^./, c => c.toUpperCase());
+    const modelWords = Model.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+    return [1, 2, 3].map(i => {
+      const o = {};
+      attrs.forEach(a => {
+        o[a.name] = a.type === 'Number' ? i * 10 : a.type === 'Boolean' ? i % 2 === 1
+          : a.type === 'Date' ? '2026-0' + i + '-15'
+          : /^(name|title|label)$/i.test(a.name) ? modelWords + ' ' + i : label(a.name) + ' ' + i;
+      });
+      return o;
+    });
+  }
   const sampleValue = (a, updated) => a.type === 'Number' ? (updated ? 43 : 42) : a.type === 'Boolean' ? !updated
     : a.type === 'Date' ? (updated ? '2026-02-28' : '2026-01-31') : (updated ? 'Updated ' : 'Example ') + a.name;
   function testPlan({ Model, one, base, P, attrs, host }) {
@@ -288,6 +302,13 @@ You should see \`Connected to MongoDB\` and \`${Model} API listening on ${host}\
 
 Errors come back as JSON: \`{ "error": { "message": "..." } }\`.
 
+## Sample data
+
+To add some ${plural}, send **POST** \`${host}${base}${P.create === '/' ? '' : P.create}\` once with each body below
+(in an API tester: Body › raw › JSON). Each one answers 201 with the saved ${one} and its \`_id\`.
+
+${sampleRecords(attrs, Model).map((r, i) => 'Sample ' + (i + 1) + ':\n\n\`\`\`json\n' + JSON.stringify(r, null, 2) + '\n\`\`\`').join('\n\n')}
+
 ## Try it (curl, or any API tester such as Thunder Client)
 
 \`\`\`
@@ -303,8 +324,9 @@ curl -X DELETE ${host}${base}${P.remove.replace(':id', '<_id>')}
 Push the folder to GitHub (\`.env\` is not included), create a Web Service with build command \`npm install\` and start command \`npm start\`, and add \`MONGODB_URI\` as an environment variable. In Atlas › Network Access, allow \`0.0.0.0/0\`.
 `;
     const tests = testPlan({ Model, one, base, P, attrs, host });
+    const samples = sampleRecords(attrs, Model);
     const files = { 'server.js': server, '.env': env, '.env.example': envExample, 'package.json': pkg, '.gitignore': gitignore, 'README.md': readme };
-    return { errors: [], files, folder: pkgName, plural, tests, host };
+    return { errors: [], files, folder: pkgName, plural, tests, host, samples, createUrl: host + base + (P.create === '/' ? '' : P.create) };
   }
 
   return { build, pluralize, connectionString, validate, pascal, testPlan };
@@ -394,6 +416,21 @@ if (typeof document !== 'undefined') {
         ${t.body ? `<pre class="mt-2 text-sm bg-white border border-gray-200 rounded p-2 overflow-x-auto">${esc(JSON.stringify(t.body, null, 2))}</pre>` : ''}
       </div>`;
     }).join('');
+    $('sampleUrl').textContent = project.createUrl;
+    $('sampleList').innerHTML = project.samples.map((r, i) => `<div class="bg-white border border-gray-200 rounded-lg">
+        <div class="flex items-center justify-between px-3 py-1.5 border-b border-gray-200 text-sm text-gray-600">
+          <span>Sample ${i + 1}</span>
+          <button type="button" class="copy-sample text-indigo-600 hover:text-indigo-800 font-semibold" data-i="${i}">Copy</button>
+        </div>
+        <pre class="text-sm p-3 overflow-x-auto">${esc(JSON.stringify(r, null, 2))}</pre>
+      </div>`).join('');
+    document.querySelectorAll('.copy-sample').forEach(b => b.addEventListener('click', async () => {
+      const text = JSON.stringify(project.samples[+b.dataset.i], null, 2);
+      try { await navigator.clipboard.writeText(text); } catch (e) {
+        const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+      }
+      b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy'; }, 1500);
+    }));
     $('testSection').hidden = false;
   }
 

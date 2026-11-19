@@ -141,6 +141,12 @@
                 <li>In an API tester (for example Thunder Client in VS Code), create each request below in order. Choose the method, paste the URL, and for a body pick
                     <strong>Body › raw › JSON</strong>. After request 1, copy the <code>_id</code> from the reply and use it where the URL says <code>&lt;id&gt;</code>.</li>
             </ol>
+            <h3 class="text-gray-800 text-lg font-semibold mt-6 mb-1">Sample JSON to create records</h3>
+            <p class="text-sm text-gray-700 mb-3">Send <strong>POST</strong> <code id="sampleUrl"></code> once with each body below
+                (<strong>Body › raw › JSON</strong>) to put some data in your database. Each one answers <strong>201</strong> with the saved record and its <code>_id</code>.</p>
+            <div id="sampleList" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6"></div>
+
+            <h3 class="text-gray-800 text-lg font-semibold mb-3">Test every endpoint, in order</h3>
             <div id="testList" class="space-y-3"></div>
         </section>
 
