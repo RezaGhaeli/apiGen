@@ -10,3 +10,7 @@
             font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; /* Monospace font for code */
             font-size: 0.9rem;
         }
+        /* Tailwind's display classes (grid, flex) would otherwise beat the hidden attribute */
+        [hidden] {
+            display: none !important;
+        }

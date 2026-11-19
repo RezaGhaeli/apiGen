@@ -5,114 +5,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom API Generator</title>
+    <meta name="description" content="Generate a complete Node.js REST API project (Express 5, MongoDB, Mongoose) from a model you describe.">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- JSZip: builds the downloadable project .zip in the browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="api.css">
-
 </head>
 
 <body class="p-4 sm:p-6 md:p-8 lg:p-10 flex justify-center items-start min-h-screen">
-    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-4xl border border-gray-200">
-        <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-8">
+    <main class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-4xl border border-gray-200">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-2">
             <span class="text-indigo-600">Custom</span> API Generator
         </h1>
+        <p class="text-center text-gray-600 mb-8">Describe a model, and get a complete Node.js REST API project:
+            Express 5, MongoDB and Mongoose 9, with the connection string kept safely in <code>.env</code>.</p>
 
-        <!-- Collection Name Input (formerly Model Name) -->
-        <div class="mb-6">
-            <label for="modelName" class="block text-gray-700 text-lg font-semibold mb-2">Collection Name (e.g.,
-                Product, User):</label>
-            <input type="text" id="modelName"
-                placeholder="Enter Collection name (e.g. Book). Recommend writing in the singular word form."
-                class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 ease-in-out">
+        <!-- Model -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="modelName" class="block text-gray-700 text-lg font-semibold mb-2">Model name</label>
+                <input type="text" id="modelName" placeholder="Name of one record, singular (e.g., Product)"
+                    class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <p class="text-xs text-gray-500 mt-1">The kind of thing your API stores, in the singular, like a class name.</p>
+            </div>
+            <div>
+                <label for="pluralName" class="block text-gray-700 text-lg font-semibold mb-2">Plural (URL and collection)</label>
+                <input type="text" id="pluralName" placeholder="Filled in from the model name (e.g., products)"
+                    class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <p id="pluralHint" class="text-xs text-gray-500 mt-1">Filled in for you; change it if needed. Used in the URL <code>/api/&lt;plural&gt;</code> and as the collection name.</p>
+            </div>
         </div>
 
         <!-- MongoDB Connection Details -->
-        <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">MongoDB Connection Details</h2>
-            <p class="text-sm text-gray-600 mb-3">Leave User ID and Password empty to connect to local MongoDB (mongodb://localhost:27017/)</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <fieldset class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <legend class="text-xl font-semibold text-gray-800 px-1">MongoDB connection</legend>
+            <div class="flex flex-wrap gap-x-6 gap-y-2 mb-4 text-gray-700">
+                <label class="flex items-center gap-2"><input type="radio" name="dbMode" value="atlas" checked> MongoDB Atlas</label>
+                <label class="flex items-center gap-2"><input type="radio" name="dbMode" value="local"> Local MongoDB (127.0.0.1:27017)</label>
+                <label class="flex items-center gap-2"><input type="radio" name="dbMode" value="uri"> Paste a connection string</label>
+            </div>
+            <div id="atlasFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label for="mongoUserId" class="block text-gray-700 text-sm font-medium mb-1">MongoDB User
-                        ID <span class="text-gray-500">(Optional for local)</span>:</label>
-                    <input type="text" id="mongoUserId" placeholder="e.g., myuser"
+                    <label for="mongoUserId" class="block text-gray-700 text-sm font-medium mb-1">Database user (Atlas › Database Access)</label>
+                    <input type="text" id="mongoUserId" placeholder="Your database user name (e.g., shopuser)" autocomplete="off"
                         class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
                 </div>
                 <div>
-                    <label for="mongoPassword" class="block text-gray-700 text-sm font-medium mb-1">MongoDB
-                        Password <span class="text-gray-500">(Optional for local)</span>:</label>
-                    <input type="password" id="mongoPassword" placeholder="e.g., mypassword"
+                    <label for="mongoPassword" class="block text-gray-700 text-sm font-medium mb-1">Database user's password</label>
+                    <input type="password" id="mongoPassword" placeholder="That user's password (e.g., Sh0p-Pass!)" autocomplete="new-password"
                         class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
                 </div>
                 <div class="md:col-span-2">
-                    <label for="mongoUri" class="block text-gray-700 text-sm font-medium mb-1">MongoDB URI <span class="text-gray-500">(Optional for local)</span> (e.g.,
-                        cluster0.fxyz.abc.mongodb.net):</label>
-                    <input type="text" id="mongoUri" placeholder="e.g., cluster0.fxyz.abc.mongodb.net"
-                        class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
-                </div>
-                <div class="md:col-span-2">
-                    <label for="mongoDatabaseName" class="block text-gray-700 text-sm font-medium mb-1">MongoDB Database
-                        Name <span class="text-red-500">*</span>:</label>
-                    <input type="text" id="mongoDatabaseName" placeholder="e.g., mydatabase"
+                    <label for="mongoUri" class="block text-gray-700 text-sm font-medium mb-1">Cluster address</label>
+                    <input type="text" id="mongoUri" placeholder="Your cluster address (e.g., cluster0.ab1cd.mongodb.net)"
                         class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
                 </div>
             </div>
-        </div>
+            <div id="uriFields" class="mb-4" hidden>
+                <label for="mongoFullUri" class="block text-gray-700 text-sm font-medium mb-1">Connection string (include the database name)</label>
+                <input type="text" id="mongoFullUri" placeholder="e.g., mongodb+srv://shopuser:pass@cluster0.ab1cd.mongodb.net/shopdb"
+                    class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
+            </div>
+            <div id="databaseField">
+                <label for="mongoDatabaseName" class="block text-gray-700 text-sm font-medium mb-1">Database name <span class="text-red-500">*</span></label>
+                <input type="text" id="mongoDatabaseName" placeholder="Name of your database (e.g., shopdb)"
+                    class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
+            </div>
+            <p class="text-xs text-gray-600 mt-3">Everything stays in your browser: nothing is sent anywhere. The connection
+                string (with the password) is written to <code>.env</code>, not into <code>server.js</code>.</p>
+        </fieldset>
 
         <!-- Attributes Section -->
         <div class="mb-6">
-            <label class="block text-gray-700 text-lg font-semibold mb-3">Model Attributes:</label>
-            <div id="attributesContainer" class="space-y-4">
-                <!-- Initial attribute row will be added by JS -->
-            </div>
-            <button id="addAttributeBtn"
+            <h2 class="block text-gray-700 text-lg font-semibold mb-3">Model attributes</h2>
+            <div id="attributesContainer" class="space-y-4"></div>
+            <button id="addAttributeBtn" type="button"
                 class="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 + Add Attribute
             </button>
         </div>
 
-        <!-- Generate & Copy Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <button id="generateCodeBtn"
-                class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                Generate API Code
-            </button>
-            <button id="copyCodeBtn"
-                class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2">
-                Copy Code
-            </button>
+        <!-- Options -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+                <label for="routeStyle" class="block text-gray-700 text-sm font-medium mb-1">Route style</label>
+                <select id="routeStyle" class="w-full py-2 px-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-400">
+                    <option value="rest">REST: POST /, PUT /:id, DELETE /:id (recommended)</option>
+                    <option value="classic">Classic: /add, /update/:id, /delete/:id</option>
+                </select>
+            </div>
+            <div>
+                <label for="port" class="block text-gray-700 text-sm font-medium mb-1">Port</label>
+                <input type="number" id="port" value="3000" min="1" max="65535"
+                    class="shadow-sm appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-1 focus:ring-indigo-400">
+            </div>
+            <label class="flex items-center gap-2 text-gray-700 text-sm pb-2">
+                <input type="checkbox" id="timestamps" class="h-5 w-5 text-indigo-600 rounded" checked>
+                Add createdAt / updatedAt (timestamps)
+            </label>
         </div>
+
+        <!-- Generate -->
+        <button id="generateCodeBtn" type="button"
+            class="w-full mb-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+            Generate API Project
+        </button>
 
         <!-- Feedback Message -->
-        <div id="message" class="text-center text-sm font-medium text-green-700 mb-4 h-5"></div>
+        <div id="message" class="text-center text-sm font-medium text-green-700 mb-4 min-h-5 whitespace-pre-line" role="status" aria-live="polite"></div>
 
-        <!-- Generated Code Output -->
-        <div>
-            <label for="generatedCode" class="block text-gray-700 text-lg font-semibold mb-2">Generated API
-                Code:</label>
-            <textarea id="generatedCode" readonly
-                class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-        </div>
+        <!-- Generated project -->
+        <section id="outputSection" hidden>
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-2">
+                <h2 class="text-gray-700 text-lg font-semibold">Generated project</h2>
+                <div class="flex gap-2">
+                    <button id="copyCodeBtn" type="button"
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out">Copy this file</button>
+                    <button id="downloadZipBtn" type="button"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out">Download project (.zip)</button>
+                </div>
+            </div>
+            <div id="fileTabs" class="flex flex-wrap gap-1" role="tablist" aria-label="Project files"></div>
+            <label for="generatedCode" class="sr-only">File contents</label>
+            <textarea id="generatedCode" readonly spellcheck="false"
+                class="w-full p-4 border border-gray-300 rounded-b-lg rounded-tr-lg bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <p class="text-sm text-gray-600 mt-2">Then: unzip, <code>npm install</code>, <code>npm run dev</code>. The README in the project lists every endpoint with test commands.</p>
+        </section>
 
-        <!-- Footer - Moved inside the main content div -->
+        <!-- How to test the generated API -->
+        <section id="testSection" class="mt-8" hidden>
+            <h2 class="text-gray-800 text-2xl font-bold mb-2">Test your API</h2>
+            <ol class="list-decimal ml-6 text-gray-700 space-y-1 mb-4">
+                <li>Start the API: unzip the project, then <code>npm install</code> and <code>npm run dev</code>. Wait for <em>Connected to MongoDB</em>.</li>
+                <li>In an API tester (for example Thunder Client in VS Code), create each request below in order. Choose the method, paste the URL, and for a body pick
+                    <strong>Body › raw › JSON</strong>. After request 1, copy the <code>_id</code> from the reply and use it where the URL says <code>&lt;id&gt;</code>.</li>
+            </ol>
+            <div id="testList" class="space-y-3"></div>
+        </section>
+
         <footer class="mt-6 text-center text-gray-600 text-sm">
             <a href="https://github.com/RezaGhaeli/apiGen" target="_blank" rel="noopener noreferrer">
                 Source: https://github.com/RezaGhaeli/apiGen
             </a>
             <br>
             <p class="mt-3">
-                If you like this app and enjoy using it, you can donate any amount via 
-                <a href="https://paypal.me/rezaghaeli" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-medium">PayPal</a> 
-                or 
-                <a href="https://buymeacoffee.com/rezaghaeli" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-medium">Buy Me a Coffee</a>. 
+                If you like this app and enjoy using it, you can donate any amount via
+                <a href="https://paypal.me/rezaghaeli" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-medium">PayPal</a>
+                or
+                <a href="https://buymeacoffee.com/rezaghaeli" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-medium">Buy Me a Coffee</a>.
                 Your support encourages me to create more practical apps like this!
             </p>
             <br>
-            Copyright &copy; Reza Ghaeli 2025
+            Copyright &copy; Reza Ghaeli 2025&ndash;2026
         </footer>
-    </div>
+    </main>
 
     <script src="apigen.js"></script>
-
 </body>
 
 </html>
